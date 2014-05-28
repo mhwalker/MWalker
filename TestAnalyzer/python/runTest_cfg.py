@@ -38,15 +38,13 @@ process.load("MWalker.TestAnalyzer.testAOD_cfi")
 process.load("PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff")
 
 process.p = cms.Path(
-    process.printLibraries*
+#    process.printLibraries*
     process.particleFlowPtrs *
     process.pfParticleSelectionForIsoSequence *
     process.pfElectronIsolationSequence *
     process.electronMatch *
-    process.printLibrariesA*
+#    process.printLibrariesA*
     process.patElectrons *
-    process.printLibrariesB*
 #    process.patCandidates *
 #    process.selectedPatCandidates *
-    process.printLibrariesC*
     process.baseAOD)
