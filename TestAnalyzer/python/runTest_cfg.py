@@ -5,7 +5,7 @@ process = cms.Process("RutgersAOD")
 options = VarParsing.VarParsing ('analysis')
 
 #set default arguments
-options.inputFiles= 'file:/cms/se/phedex/store/mc/Spring14dr/GJet_Pt-15to3000_Tune4C_13TeV_pythia8/AODSIM/PU20bx25_POSTLS170_V5-v1/010007/FEEC76AE-5BD1-E311-8A53-00266CF9BED8.root'
+options.inputFiles= '/store/relval/CMSSW_7_0_0/RelValProdTTbar_13/AODSIM/POSTLS170_V3-v2/00000/40D11F5C-EA98-E311-BE17-02163E00E964.root'
 #options.inputFiles= 'file:/cms/thomassen/2012/Signal/StopRPV/store/aodsim/LLE122/StopRPV_8TeV_chunk3_stop950_bino800_LLE122_aodsim.root'
 #options.maxEvents = 100 # -1 means all events
 #options.maxEvents = 100
@@ -26,9 +26,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.printLibraries = cms.EDProducer("MWPrintLibraries",
-                                        )
-
+process.printLibraries = cms.EDProducer("MWPrintLibraries",)
+process.printLibrariesA = cms.EDProducer("MWPrintLibraries",)
+process.printLibrariesB = cms.EDProducer("MWPrintLibraries",)
+process.printLibrariesC = cms.EDProducer("MWPrintLibraries",)
 process.load('PhysicsTools.PatAlgos.patSequences_cff')
 
 process.load("MWalker.TestAnalyzer.testAOD_cfi")
@@ -37,12 +38,15 @@ process.load("MWalker.TestAnalyzer.testAOD_cfi")
 process.load("PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff")
 
 process.p = cms.Path(
-#    process.printLibraries*
+    process.printLibraries*
     process.particleFlowPtrs *
     process.pfParticleSelectionForIsoSequence *
     process.pfElectronIsolationSequence *
     process.electronMatch *
+    process.printLibrariesA*
     process.patElectrons *
+    process.printLibrariesB*
 #    process.patCandidates *
 #    process.selectedPatCandidates *
+    process.printLibrariesC*
     process.baseAOD)
