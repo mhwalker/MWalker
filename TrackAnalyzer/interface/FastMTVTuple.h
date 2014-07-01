@@ -66,6 +66,7 @@ class MWFastMTVTuple : public edm::EDAnalyzer {
   edm::InputTag m_simSource;
   edm::InputTag beamspot_;
   edm::InputTag m_mvaSource;
+  edm::EDGetTokenT<reco::VertexCollection> m_vertices;
 
   float m_tvMatched;
   float m_tvPt;
@@ -88,6 +89,8 @@ class MWFastMTVTuple : public edm::EDAnalyzer {
   float m_tvLostMidFrac;
   float m_tvDz;
   float m_tvD0;
+  float m_tvDzPV;
+  float m_tvD0PV;
   float m_tvMvaVal;
   float m_tvSignal;
   float m_tvStable;
