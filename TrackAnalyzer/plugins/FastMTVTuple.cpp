@@ -56,6 +56,8 @@ MWFastMTVTuple::MWFastMTVTuple(const edm::ParameterSet& iPara)
   if(iPara.exists("associator"))m_associatorName = iPara.getParameter<string>("associator");
   if(iPara.exists("simSource"))m_simSource = iPara.getParameter<InputTag>("simSource");
 
+  m_vertices = consumes<reco::VertexCollection>(iPara.getParameter<edm::InputTag>("vertices"));
+
   m_mvaSource = InputTag(m_source,"MVAVals");
 
   m_recoTracks = new TTree("recoTracks","",1);
@@ -79,6 +81,8 @@ MWFastMTVTuple::MWFastMTVTuple(const edm::ParameterSet& iPara)
   m_recoTracks->Branch("lostmidfrac",&m_tvLostMidFrac,"lostmidfrac/F");
   m_recoTracks->Branch("dz",&m_tvDz,"dz/F");
   m_recoTracks->Branch("d0",&m_tvD0,"d0/F");
+  m_recoTracks->Branch("dzPV",&m_tvDzPV,"dzPV/F");
+  m_recoTracks->Branch("d0PV",&m_tvD0PV,"d0PV/F");
   m_recoTracks->Branch("mvaval",&m_tvMvaVal,"mvaval/F");
   m_recoTracks->Branch("loose",&m_tvLoose,"loose/F");
   m_recoTracks->Branch("highPurity",&m_tvhighPurity,"highPurity");
@@ -103,6 +107,8 @@ MWFastMTVTuple::MWFastMTVTuple(const edm::ParameterSet& iPara)
   m_simTracks->Branch("lostmidfrac",&m_tvLostMidFrac,"lostmidfrac/F");
   m_simTracks->Branch("dz",&m_tvDz,"dz/F");
   m_simTracks->Branch("d0",&m_tvD0,"d0/F");
+  m_simTracks->Branch("dzPV",&m_tvDzPV,"dzPV/F");
+  m_simTracks->Branch("d0PV",&m_tvD0PV,"d0PV/F");
   m_simTracks->Branch("mvaval",&m_tvMvaVal,"mvaval/F");
   m_simTracks->Branch("signal",&m_tvSignal,"signal/F");
   m_simTracks->Branch("stable",&m_tvStable,"stable/F");
@@ -159,6 +165,9 @@ void MWFastMTVTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   reco::BeamSpot vertexBeamSpot;
   vertexBeamSpot = *hBsp;
 
+  edm::Handle<reco::VertexCollection> hVtx;
+  iEvent.getByToken(m_vertices, hVtx);
+
   iSetup.get<IdealMagneticFieldRecord>().get(m_magfield);
 
   edm::Handle<View<Track> >handle;
@@ -178,6 +187,10 @@ void MWFastMTVTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
   simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
 
+  std::vector<Point> points;
+  std::vector<float> vterr, vzerr;
+
+  VertexCollection::const_iterator vtxIter = hVtx->begin();
 
   for(int i = 0; i < (int)handle->size(); i++){
     Track tk = (handle->at(i));
@@ -188,6 +201,11 @@ void MWFastMTVTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     setVars(tk);
     m_tvDz = tk.dz(vertexBeamSpot.position());
     m_tvD0 = tk.dxy(vertexBeamSpot.position());
+
+    m_tvDzPV = tk.dz(vtxIter->position());
+    m_tvD0PV = tk.dxy(vtxIter->position());
+
+
     RefToBase<Track> trackRef1(handle,i);
     vector<pair<TrackingParticleRef, double> > tp1;
     if(recSimColl.find(trackRef1) != recSimColl.end())tp1 = recSimColl[trackRef1];
@@ -239,6 +257,8 @@ void MWFastMTVTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     m_tvDz = dzSim;
     m_tvD0 = dxySim;
+    m_tvDzPV = dzSim;
+    m_tvD0PV = dxySim;
     m_simTracks->Fill();
   }
 
@@ -314,6 +334,8 @@ void MWFastMTVTuple::resetVars(){
 
   m_tvDz = 0;
   m_tvD0 = 0;
+  m_tvDzPV = 0;
+  m_tvD0PV = 0;
   
   m_tvIter = -99;
   m_tvMvaVal = -99;
