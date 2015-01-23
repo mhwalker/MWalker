@@ -528,10 +528,10 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	mt_delta3d_z = (mt_inner_outer_z + mt_outer_inner_z)/2.;
 	mt_delta3d_r = sqrt(pow(mt_delta3d_x,2)+pow(mt_delta3d_y,2));
 	//cout<<mt_delta3d_x<<" "<<avgPoint.x()<<" "<<mt_delta3d_y<<" "<<avgPoint.y()<<" "<<mt_delta3d_z<<" "<<avgPoint.z()<<endl;
-	mt_inner_nMissingInner = t1.trackerExpectedHitsInner().numberOfLostHits();
-	mt_inner_nMissingOuter = t1.trackerExpectedHitsOuter().numberOfLostHits();
-	mt_outer_nMissingInner = t2.trackerExpectedHitsInner().numberOfLostHits();
-	mt_outer_nMissingOuter = t2.trackerExpectedHitsOuter().numberOfLostHits();
+	mt_inner_nMissingInner = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+	mt_inner_nMissingOuter = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
+	mt_outer_nMissingInner = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+	mt_outer_nMissingOuter = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
 	mt_inner_qoverp = qoverp1;
 	mt_inner_qoverp_err = e1_0;
 	mt_inner_lambda = lambda1;
@@ -585,7 +585,7 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	m_duplicate_dsz->Fill(dsz1,dsz2);
 	m_duplicate_pT->Fill(TSCP1.pt(),TSCP2.pt());
 	m_duplicate_nHits->Fill(t1.numberOfValidHits(),t2.numberOfValidHits());
-	m_duplicate_nMissingHits->Fill(max(t1.trackerExpectedHitsInner().numberOfLostHits(),t1.trackerExpectedHitsOuter().numberOfLostHits()),max(t2.trackerExpectedHitsInner().numberOfLostHits(),t2.trackerExpectedHitsOuter().numberOfLostHits()));
+	m_duplicate_nMissingHits->Fill(max(t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS),t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS)),max(t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS),t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS)));
 	m_duplicate_dqoverp->Fill((qoverp1-qoverp2)/sqrt(e1_0 + e2_0));
 	m_duplicate_dlambda->Fill((lambda1-lambda2)/sqrt(e1_1 + e2_1));
 	m_duplicate_dphi->Fill(deltaPhi/sqrt(e1_2 + e2_2));
@@ -713,10 +713,10 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	mt_delta3d_y = (mt_inner_outer_y + mt_outer_inner_y)/2.;
 	mt_delta3d_z = (mt_inner_outer_z + mt_outer_inner_z)/2.;
 	mt_delta3d_r = sqrt(pow(mt_delta3d_x,2) + pow(mt_delta3d_y,2));
-	mt_inner_nMissingInner = t1.trackerExpectedHitsInner().numberOfLostHits();
-	mt_inner_nMissingOuter = t1.trackerExpectedHitsOuter().numberOfLostHits();
-	mt_outer_nMissingInner = t2.trackerExpectedHitsInner().numberOfLostHits();
-	mt_outer_nMissingOuter = t2.trackerExpectedHitsOuter().numberOfLostHits();
+	mt_inner_nMissingInner = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+	mt_inner_nMissingOuter = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
+	mt_outer_nMissingInner = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+	mt_outer_nMissingOuter = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
 	mt_inner_qoverp = qoverp1;
 	mt_inner_qoverp_err = e1_0;
 	mt_inner_lambda = lambda1;
@@ -784,7 +784,7 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  m_comb_dsz->Fill(dsz1,dsz2);
 	  m_comb_pT->Fill(TSCP1.pt(),TSCP2.pt());
 	  m_comb_nHits->Fill(t1.numberOfValidHits(),t2.numberOfValidHits());
-	  m_comb_nMissingHits->Fill(max(t1.trackerExpectedHitsInner().numberOfLostHits(),t1.trackerExpectedHitsOuter().numberOfLostHits()),max(t2.trackerExpectedHitsInner().numberOfLostHits(),t2.trackerExpectedHitsOuter().numberOfLostHits()));
+	  m_comb_nMissingHits->Fill(max(t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS),t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS)),max(t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS),t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS)));
 	  m_comb_dqoverp->Fill((qoverp1-qoverp2)/sqrt(e1_0 + e2_0));
 	  m_comb_dlambda->Fill((lambda1-lambda2)/sqrt(e1_1 + e2_1));
 	  m_comb_dphi->Fill(deltaPhi/sqrt(e1_2 + e2_2));
@@ -897,10 +897,10 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       mt_outer_outer_x = t2.outerPosition().x();
       mt_outer_outer_y = t2.outerPosition().y();
       mt_outer_outer_z = t2.outerPosition().z();
-      mt_inner_nMissingInner = t1.trackerExpectedHitsInner().numberOfLostHits();
-      mt_inner_nMissingOuter = t1.trackerExpectedHitsOuter().numberOfLostHits();
-      mt_outer_nMissingInner = t2.trackerExpectedHitsInner().numberOfLostHits();
-      mt_outer_nMissingOuter = t2.trackerExpectedHitsOuter().numberOfLostHits();
+      mt_inner_nMissingInner = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+      mt_inner_nMissingOuter = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
+      mt_outer_nMissingInner = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+      mt_outer_nMissingOuter = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
       double delta3dr = sqrt(pow(mt_inner_outer_x - mt_outer_inner_x,2) + pow(mt_inner_outer_y - mt_outer_inner_y,2) + pow(mt_inner_outer_z - mt_outer_inner_z,2));
       if((pow(mt_inner_outer_x,2)+pow(mt_inner_outer_y,2)) > (pow(mt_outer_inner_x,2)+pow(mt_outer_inner_y,2)))delta3dr *= -1.0;
 
@@ -956,10 +956,10 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       mt_outer_outer_x = t2.outerPosition().x();
       mt_outer_outer_y = t2.outerPosition().y();
       mt_outer_outer_z = t2.outerPosition().z();
-      mt_inner_nMissingInner = t1.trackerExpectedHitsInner().numberOfLostHits();
-      mt_inner_nMissingOuter = t1.trackerExpectedHitsOuter().numberOfLostHits();
-      mt_outer_nMissingInner = t2.trackerExpectedHitsInner().numberOfLostHits();
-      mt_outer_nMissingOuter = t2.trackerExpectedHitsOuter().numberOfLostHits();
+      mt_inner_nMissingInner = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+      mt_inner_nMissingOuter = t1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
+      mt_outer_nMissingInner = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+      mt_outer_nMissingOuter = t2.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
       double delta3dr = sqrt(pow(mt_inner_outer_x - mt_outer_inner_x,2) + pow(mt_inner_outer_y - mt_outer_inner_y,2) + pow(mt_inner_outer_z - mt_outer_inner_z,2));
       if((pow(mt_inner_outer_x,2)+pow(mt_inner_outer_y,2)) > (pow(mt_outer_inner_x,2)+pow(mt_outer_inner_y,2)))delta3dr *= -1.0;
       if(delta3dr < m_minDeltaR3d)continue;

@@ -55,6 +55,8 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   if(iPara.exists("source"))m_source = iPara.getParameter<string>("source");
   if(iPara.exists("associator"))m_associatorName = iPara.getParameter<string>("associator");
   if(iPara.exists("simSource"))m_simSource = iPara.getParameter<InputTag>("simSource");
+  if(iPara.exists("vertices"))m_vertices = consumes<reco::VertexCollection>(iPara.getParameter<edm::InputTag>("vertices"));
+
   doMVA_ = false;
   tmvaReader_  = NULL;
   mvaType_ = "BDTG";
@@ -154,6 +156,11 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   iSetup.get<IdealMagneticFieldRecord>().get(m_magfield);
 
+  edm::Handle<reco::VertexCollection> hVtx;
+  iEvent.getByToken(m_vertices, hVtx);
+
+  VertexCollection::const_iterator vtxIter = hVtx->begin();
+
   edm::Handle<View<Track> >handle;
   iEvent.getByLabel(m_source,handle);
   edm::Handle<View<Track> >handleHighPurity;
@@ -175,7 +182,7 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_tvNdof = tk.ndof();
     m_tvNlayers = tk.hitPattern().trackerLayersWithMeasurement();
     m_tvNlayers3D = tk.hitPattern().pixelLayersWithMeasurement() + tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-    m_tvNlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement();
+    m_tvNlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
     float chi2n =  tk.normalizedChi2();
     float chi2n_no1Dmod = chi2n;
@@ -197,15 +204,15 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_tvEta = tk.eta();
     m_tvRelPtErr = float(tk.ptError())/std::max(float(tk.pt()),0.000001f);
     m_tvNhits = tk.numberOfValidHits();
-    m_tvLostIn = tk.trackerExpectedHitsInner().numberOfLostTrackerHits();
-    m_tvLostOut = tk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+    m_tvLostIn = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+    m_tvLostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
     m_tvMinLost = std::min(m_tvLostIn,m_tvLostOut);
     m_tvLostMidFrac = float(tk.numberOfLostHits()) / float(tk.numberOfValidHits() + tk.numberOfLostHits());
 
     m_tvAbsDz = fabs(tk.dz( vertexBeamSpot.position()));
     m_tvAbsD0 = fabs(tk.dxy( vertexBeamSpot.position()));
-    m_tvAbsDzPV = 0;
-    m_tvAbsD0PV = 0;
+    m_tvAbsDzPV = fabs(tk.dz(vtxIter->position()));
+    m_tvAbsD0PV = fabs(tk.dxy(vtxIter->position()));
 
     TString algoName(tk.algoName());
     //cout<<algoName<<endl;

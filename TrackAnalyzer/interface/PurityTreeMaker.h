@@ -62,6 +62,7 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   TFile* m_outFile;
   edm::InputTag m_simSource;
   edm::InputTag beamspot_;
+  edm::EDGetTokenT<reco::VertexCollection> m_vertices;
 
   float m_tvFake;
   float m_tvIter;

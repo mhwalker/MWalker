@@ -22,7 +22,7 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoTracker/TrackProducer/interface/TrackMerger.h"
+#include "RecoTracker/FinalTrackSelectors/plugins/TrackMerger.h"
 #include <vector>
 #include <algorithm>
 #include <string>

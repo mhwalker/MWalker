@@ -269,7 +269,7 @@ void MWFastMTVTuple::setVars(reco::Track tk){
     m_tvNdof = tk.ndof();
     m_tvNlayers = tk.hitPattern().trackerLayersWithMeasurement();
     m_tvNlayers3D = tk.hitPattern().pixelLayersWithMeasurement() + tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
-    m_tvNlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement();
+    m_tvNlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
     float chi2n =  tk.normalizedChi2();
     float chi2n_no1Dmod = chi2n;
@@ -296,8 +296,8 @@ void MWFastMTVTuple::setVars(reco::Track tk){
     m_tvPhi = tk.phi();
     m_tvRelPtErr = float(tk.ptError())/std::max(float(tk.pt()),0.000001f);
     m_tvNhits = tk.numberOfValidHits();
-    m_tvLostIn = tk.trackerExpectedHitsInner().numberOfLostTrackerHits();
-    m_tvLostOut = tk.trackerExpectedHitsOuter().numberOfLostTrackerHits();
+    m_tvLostIn = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+    m_tvLostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
     m_tvMinLost = std::min(m_tvLostIn,m_tvLostOut);
     m_tvLostMidFrac = float(tk.numberOfLostHits()) / float(tk.numberOfValidHits() + tk.numberOfLostHits());
 

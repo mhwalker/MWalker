@@ -182,7 +182,7 @@ void MWBadFitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Track rt1 = (handle->at(i));
     HitPattern p = rt1.hitPattern();
     TrackResiduals r = rt1.residuals();
-    int numHits = p.numberOfHits();        
+    int numHits = p.numberOfHits(HitPattern::TRACK_HITS);        
       /*
       p.numberOfLostHits() +         
       p.numberOfValidMuonHits() +    
@@ -259,7 +259,7 @@ void MWBadFitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     m_pT->Fill(rt1.momentum().Rho());
     m_pTinnerOuter->Fill(rt1.innerMomentum().Rho(),rt1.outerMomentum().Rho());
     m_etaPhi->Fill(rt1.momentum().Eta(),rt1.momentum().Phi());      
-    m_nMissing->Fill(rt1.trackerExpectedHitsInner().numberOfLostHits(),rt1.trackerExpectedHitsOuter().numberOfLostHits());
+    m_nMissing->Fill(rt1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS),rt1.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
   }
 
 
