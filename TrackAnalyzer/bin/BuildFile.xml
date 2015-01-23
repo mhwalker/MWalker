@@ -1,0 +1,4 @@
+<use name="root"/>
+<use   name="boost_serialization"/>
+<use name="MWalker/TrackAnalyzer"/>
+<bin name="runConverter" file="runConverter.cpp"/>
