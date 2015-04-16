@@ -279,7 +279,7 @@ void MWFastMTVTuple::setVars(reco::Track tk){
 
     int count1dhits = 0;
     for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit * hit = ith->get();
+      const TrackingRecHit * hit = (*ith);
       if (hit->isValid()) {
 	if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
       }
@@ -305,9 +305,27 @@ void MWFastMTVTuple::setVars(reco::Track tk){
     m_tvD0 = 0;
 
     TString algoName(tk.algoName());
+    if (algoName == "initialStep"){
+      m_tvIter = 0;
+    }else if(algoName == "lowPtTripletStep"){
+      m_tvIter = 1;
+    }else if(algoName == "pixelPairStep"){
+      m_tvIter = 2;
+    }else if(algoName == "detachedTripletStep"){
+      m_tvIter = 3;
+    }else if(algoName == "mixedTripletStep"){
+      m_tvIter = 4;
+    }else if(algoName == "pixelLessStep"){
+      m_tvIter = 5;
+    }else if(algoName == "tobTecStep"){
+      m_tvIter = 6;
+    }else{
+      m_tvIter = 9;
+    }
+
     //cout<<algoName<<endl;
-    algoName.ReplaceAll("iter","");
-    m_tvIter = algoName.Atoi();
+    //algoName.ReplaceAll("iter","");
+    //m_tvIter = algoName.Atoi();
 
 }
 //------------------------------------------------------------

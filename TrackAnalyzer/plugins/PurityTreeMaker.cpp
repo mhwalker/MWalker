@@ -175,7 +175,6 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
   recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
   simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
 
-
   for(int i = 0; i < (int)handle->size(); i++){
     Track tk = (handle->at(i));
     m_tvFake = 1;
@@ -189,7 +188,7 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     int count1dhits = 0;
     for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit * hit = ith->get();
+      const TrackingRecHit * hit = (*ith);
       if (hit->isValid()) {
 	if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
       }
@@ -215,9 +214,24 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_tvAbsD0PV = fabs(tk.dxy(vtxIter->position()));
 
     TString algoName(tk.algoName());
-    //cout<<algoName<<endl;
-    algoName.ReplaceAll("iter","");
-    m_tvIter = algoName.Atoi();
+    if (algoName == "initialStep"){
+      m_tvIter = 0;
+    }else if(algoName == "lowPtTripletStep"){
+      m_tvIter = 1;
+    }else if(algoName == "pixelPairStep"){
+      m_tvIter = 2;
+    }else if(algoName == "detachedTripletStep"){
+      m_tvIter = 3;
+    }else if(algoName == "mixedTripletStep"){
+      m_tvIter = 4;
+    }else if(algoName == "pixelLessStep"){
+      m_tvIter = 5;
+    }else if(algoName == "tobTecStep"){
+      m_tvIter = 6;
+    }else{
+      m_tvIter = 9;
+    }
+
 
     RefToBase<Track> trackRef1(handle,i);
     vector<pair<TrackingParticleRef, double> > tp1;

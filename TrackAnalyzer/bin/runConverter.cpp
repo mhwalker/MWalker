@@ -2,7 +2,7 @@
 #include <TString.h>
 int main(int argc, char** argv)
 {
-  for(int i = 0; i < 2; i++){
+  for(int i = 0; i < 3; i++){
     TString wfname = TString::Format("./SelectorWeightBDTGIter%i.xml",i);
     TString rfname = TString::Format("./SelectorWeightBDTGIter%i.root",i);
     BDTConverter* converter = new BDTConverter(wfname,rfname);   
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
     converter->convert();
   }
-  for(int i = 3; i < 4; i++){
+  for(int i = 3; i < 7; i++){
     TString wfname = TString::Format("./SelectorWeightBDTGIter%i.xml",i);
     TString rfname = TString::Format("./SelectorWeightBDTGIter%i.root",i);
     BDTConverter* converter = new BDTConverter(wfname,rfname);   

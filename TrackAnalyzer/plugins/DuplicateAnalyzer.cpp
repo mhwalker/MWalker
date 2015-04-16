@@ -258,7 +258,7 @@ int MWDuplicateAnalyzer::matchCandidateToTrack(TrackCandidate candidate, edm::Ha
     trackingRecHit_iterator trackRecBegin = tracks->at(i).recHitsBegin();
     trackingRecHit_iterator trackRecEnd = tracks->at(i).recHitsEnd();
     for(;trackRecBegin != trackRecEnd; trackRecBegin++){
-      if(find(rawIds.begin(),rawIds.end(),(*(trackRecBegin)).get()->rawId()) != rawIds.end())match++;
+      if(find(rawIds.begin(),rawIds.end(),(*(trackRecBegin))->rawId()) != rawIds.end())match++;
     }
     if(match != (int)tracks->at(i).recHitsSize())continue;
     track = i;
