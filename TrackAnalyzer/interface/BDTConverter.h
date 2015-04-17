@@ -6,7 +6,7 @@
 #include "TMVA/MethodBDT.h"
 #include "TMVA/IMethod.h"
 #include <TString.h>
-#include "Cintex/Cintex.h"
+//#include "Cintex/Cintex.h"
 
 class BDTConverter{
  public:

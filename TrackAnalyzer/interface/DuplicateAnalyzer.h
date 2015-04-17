@@ -19,11 +19,11 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimTracker/TrackAssociatorProducers/plugins/QuickTrackAssociatorByHitsImpl.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -70,8 +70,7 @@ class MWDuplicateAnalyzer : public edm::EDAnalyzer {
   int numberOfSharedHits(reco::Track t1, reco::Track t2);
   bool compareTracks(reco::Track t1,reco::Track t2);
   bool trackInCollection(reco::Track t,edm::Handle<edm::View<reco::Track> > coll);
-
-  const TrackAssociatorBase* m_associator;
+  const reco::TrackToTrackingParticleAssociator* m_associator;
 
   unsigned int m_totalEvents;
   unsigned int m_totalDuplicates;

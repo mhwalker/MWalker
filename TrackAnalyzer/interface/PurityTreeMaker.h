@@ -3,6 +3,7 @@
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,9 +20,9 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "DataFormats/Math/interface/Point3D.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -49,6 +50,8 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   explicit MWPurityTreeMaker(const edm::ParameterSet& iPara);
   ~MWPurityTreeMaker();
 
+  typedef math::XYZPoint Point;
+
  private:
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -56,7 +59,9 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   void endRun(  const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
 
-  const TrackAssociatorBase* m_associator;
+  Point getBestVertex(reco::TrackBaseRef,reco::VertexCollection);
+
+  const reco::TrackToTrackingParticleAssociator* m_associator;
   std::string m_source;
   std::string m_associatorName;
   TFile* m_outFile;
@@ -67,6 +72,7 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   float m_tvFake;
   float m_tvIter;
   float m_tvNdof;
+  float m_tvpt;
   float m_tvNlayers;
   float m_tvNlayers3D;
   float m_tvNlayersLost;
