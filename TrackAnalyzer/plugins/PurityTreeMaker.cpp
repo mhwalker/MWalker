@@ -14,8 +14,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -86,6 +84,7 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   m_outTree->Branch("fake",&m_tvFake,"fake/F");
   m_outTree->Branch("iter",&m_tvIter,"iter/F");
   m_outTree->Branch("ndof",&m_tvNdof,"ndof/F");
+  m_outTree->Branch("pt",&m_tvpt,"pt/F");
   m_outTree->Branch("nlayers",&m_tvNlayers,"nlayers/F");
   m_outTree->Branch("nlayers3D",&m_tvNlayers3D,"nlayers3D/F");
   m_outTree->Branch("nlayerslost",&m_tvNlayersLost,"nlayerslost/F");
@@ -104,6 +103,7 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   m_outTree->Branch("absd0PV",&m_tvAbsD0PV,"absd0PV/F");
   m_outTree->Branch("mvaval",&m_tvMvaVal,"mvaval/F");
 
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -135,9 +135,7 @@ void MWPurityTreeMaker::endJob()
 //------------------------------------------------------------
 void MWPurityTreeMaker::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(m_associatorName,theAssociator);
-  m_associator = theAssociator.product();
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -153,6 +151,10 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(beamspot_, hBsp);
   reco::BeamSpot vertexBeamSpot;
   vertexBeamSpot = *hBsp;
+
+  edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
+  iEvent.getByLabel(m_associatorName,assocHandle);
+  m_associator = assocHandle.product();
 
   iSetup.get<IdealMagneticFieldRecord>().get(m_magfield);
 
@@ -172,8 +174,8 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
   reco::RecoToSimCollection recSimColl;
   reco::SimToRecoCollection simRecColl;
 
-  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
-  simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
+  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle);
+  simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
 
   for(int i = 0; i < (int)handle->size(); i++){
     Track tk = (handle->at(i));
@@ -201,6 +203,7 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_tvChi2n = chi2n;
     m_tvChi2n_no1Dmod = chi2n_no1Dmod;
     m_tvEta = tk.eta();
+    m_tvpt = tk.pt();
     m_tvRelPtErr = float(tk.ptError())/std::max(float(tk.pt()),0.000001f);
     m_tvNhits = tk.numberOfValidHits();
     m_tvLostIn = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
@@ -208,10 +211,14 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_tvMinLost = std::min(m_tvLostIn,m_tvLostOut);
     m_tvLostMidFrac = float(tk.numberOfLostHits()) / float(tk.numberOfValidHits() + tk.numberOfLostHits());
 
+    RefToBase<Track> trackRef1(handle,i);
+
     m_tvAbsDz = fabs(tk.dz( vertexBeamSpot.position()));
     m_tvAbsD0 = fabs(tk.dxy( vertexBeamSpot.position()));
-    m_tvAbsDzPV = fabs(tk.dz(vtxIter->position()));
-    m_tvAbsD0PV = fabs(tk.dxy(vtxIter->position()));
+
+    Point bestVertex = getBestVertex(trackRef1,*(hVtx.product()));
+    m_tvAbsDzPV = fabs(tk.dz(bestVertex));
+    m_tvAbsD0PV = fabs(tk.dxy(bestVertex));
 
     TString algoName(tk.algoName());
     if (algoName == "initialStep"){
@@ -233,7 +240,6 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
 
-    RefToBase<Track> trackRef1(handle,i);
     vector<pair<TrackingParticleRef, double> > tp1;
     if(recSimColl.find(trackRef1) != recSimColl.end())tp1 = recSimColl[trackRef1];
     if(tp1.size() > 0){
@@ -250,6 +256,30 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
+Point MWPurityTreeMaker::getBestVertex(TrackBaseRef track,VertexCollection vertices){
+  Point p(0,0,-99999);
+  Point p_dz(0,0,-99999);
+  float bestWeight = 0;
+  float dzmin = 10000;
+  bool weightMatch = false;
+  for(auto const & vertex : vertices){
+    float w = vertex.trackWeight(track);
+    Point v_pos = vertex.position();
+    if(w > bestWeight){
+      p = v_pos;
+      bestWeight = w;
+      weightMatch = true;
+    }
+    float dz = fabs(track.get()->dz(v_pos));
+    if(dz < dzmin){
+      p_dz = v_pos;
+      dzmin = dz;
+    }
+  }
+  if(weightMatch)return p;
+  else return p_dz;
+}
+
 //------------------------------------------------------------
 //------------------------------------------------------------
 //------------------------------------------------------------

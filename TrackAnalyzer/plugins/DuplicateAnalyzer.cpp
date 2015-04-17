@@ -3,6 +3,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/eventSetupGetImplementation.h"
@@ -15,9 +16,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -55,6 +53,8 @@ MWDuplicateAnalyzer::MWDuplicateAnalyzer(const edm::ParameterSet& iPara)
   //if(iPara.exists("duplicateCandidateSource"))m_duplicateCandidateSource = iPara.getParameter<string>("duplicateCandidateSource");
   if(iPara.exists("duplicateFitSource"))m_duplicateFitSource = iPara.getParameter<string>("duplicateFitSource");
   if(iPara.exists("duplicateFinalSource"))m_duplicateFinalSource = iPara.getParameter<string>("duplicateFinalSource");
+
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -94,9 +94,6 @@ void MWDuplicateAnalyzer::endJob()
 //------------------------------------------------------------
 void MWDuplicateAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(m_associatorName,theAssociator);
-  m_associator = theAssociator.product();
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -110,6 +107,11 @@ void MWDuplicateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
   m_totalEvents++;
   iSetup.get<IdealMagneticFieldRecord>().get(m_magfield);
+
+  edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
+  iEvent.getByLabel(m_associatorName,assocHandle);
+  m_associator = assocHandle.product();
+
 
   edm::Handle<View<Track> >handle;
   iEvent.getByLabel(m_trackSource,handle);
@@ -135,10 +137,10 @@ void MWDuplicateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   reco::RecoToSimCollection recSimColl,recSimCollDuplicates;
   reco::SimToRecoCollection simRecColl,simRecCollDuplicates;
 
-  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
-  simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
-  recSimCollDuplicates = m_associator->associateRecoToSim(handleDuplicateFit,simTPhandle,&iEvent,&iSetup);
-  simRecCollDuplicates = m_associator->associateSimToReco(handleDuplicateFit,simTPhandle,&iEvent,&iSetup);
+  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle);
+  simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
+  recSimCollDuplicates = m_associator->associateRecoToSim(handleDuplicateFit,simTPhandle);
+  simRecCollDuplicates = m_associator->associateSimToReco(handleDuplicateFit,simTPhandle);
 
 
   TwoTrackMinimumDistance ttmd;

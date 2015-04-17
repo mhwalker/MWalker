@@ -14,9 +14,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -31,6 +28,7 @@
 #include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include <functional>
 #include <sstream>

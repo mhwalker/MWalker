@@ -15,8 +15,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"

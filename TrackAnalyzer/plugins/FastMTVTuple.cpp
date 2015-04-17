@@ -14,9 +14,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -115,6 +112,7 @@ MWFastMTVTuple::MWFastMTVTuple(const edm::ParameterSet& iPara)
   m_simTracks->Branch("loose",&m_tvLoose,"loose/F");
   m_simTracks->Branch("highPurity",&m_tvhighPurity,"highPurity");
 
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -146,9 +144,7 @@ void MWFastMTVTuple::endJob()
 //------------------------------------------------------------
 void MWFastMTVTuple::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(m_associatorName,theAssociator);
-  m_associator = theAssociator.product();
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -181,11 +177,15 @@ void MWFastMTVTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<edm::ValueMap<float> > trackMVAStore;
   iEvent.getByLabel(m_mvaSource,trackMVAStore);
 
+  edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
+  iEvent.getByLabel(m_associatorName,assocHandle);
+  m_associator = assocHandle.product();
+
   reco::RecoToSimCollection recSimColl;
   reco::SimToRecoCollection simRecColl;
 
-  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
-  simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
+  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle);
+  simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
 
   std::vector<Point> points;
   std::vector<float> vterr, vzerr;
