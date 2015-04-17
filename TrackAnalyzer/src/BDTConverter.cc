@@ -30,7 +30,7 @@ void BDTConverter::convert()
 {
   tmvaReader_->BookMVA("BDTG",weightsFileName_);
   TFile *ofile = new TFile(outFileName_,"RECREATE");
-  ROOT::Cintex::Cintex::Enable();
+  //ROOT::Cintex::Cintex::Enable();
   TMVA::IMethod* meth=tmvaReader_->FindMVA("BDTG");
   TMVA::MethodBDT* bdt=dynamic_cast<TMVA::MethodBDT*>(meth);
   GBRForest *ogbreb= new GBRForest(bdt);
