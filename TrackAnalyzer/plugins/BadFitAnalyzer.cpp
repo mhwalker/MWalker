@@ -1,4 +1,4 @@
-#include "MWalker/TrackAnalyzer/interface/BadFitAnalyzer.h"
+ #include "MWalker/TrackAnalyzer/interface/BadFitAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,8 +14,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -89,6 +87,8 @@ MWBadFitAnalyzer::MWBadFitAnalyzer(const edm::ParameterSet& iPara)
   m_pdgid = new TH1F("pdgid","",11,-5.5,5.5);
   m_pdgidBad = new TH1F("pdgidBad","",11,-5.5,5.5);
 
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -147,9 +147,7 @@ void MWBadFitAnalyzer::endJob()
 //------------------------------------------------------------
 void MWBadFitAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(m_associatorName,theAssociator);
-  m_associator = theAssociator.product();
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -174,8 +172,12 @@ void MWBadFitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   reco::RecoToSimCollection recSimColl;
   reco::SimToRecoCollection simRecColl;
 
-  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
-  simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
+  edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
+  iEvent.getByLabel(m_associatorName,assocHandle);
+  m_associator = assocHandle.product();
+
+  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle);
+  simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
 
 
   for(int i = 0; i < (int)handle->size(); i++){

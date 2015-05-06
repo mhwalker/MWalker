@@ -3,6 +3,7 @@
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,9 +20,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -59,7 +59,7 @@ class MWFastMTVTuple : public edm::EDAnalyzer {
   void resetVars();
   void setVars(reco::Track);
 
-  const TrackAssociatorBase* m_associator;
+  const reco::TrackToTrackingParticleAssociator* m_associator;
   std::string m_source;
   std::string m_associatorName;
   TFile* m_outFile;

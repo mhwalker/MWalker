@@ -3,6 +3,7 @@
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -18,9 +19,9 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
+#include "SimTracker/TrackAssociatorProducers/plugins/QuickTrackAssociatorByHitsImpl.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 #include <algorithm>
@@ -59,7 +60,7 @@ class MWBadFitAnalyzer : public edm::EDAnalyzer {
   bool compareTracks(reco::Track t1,reco::Track t2);
   bool trackInCollection(reco::Track t,edm::Handle<edm::View<reco::Track> > coll);
 
-  const TrackAssociatorBase* m_associator;
+  const reco::TrackToTrackingParticleAssociator* m_associator;
   std::string m_source;
   std::string m_associatorName;
   TFile* m_outFile;

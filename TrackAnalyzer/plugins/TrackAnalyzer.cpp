@@ -14,9 +14,6 @@
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
@@ -252,6 +249,8 @@ MWTrackAnalyzer::MWTrackAnalyzer(const edm::ParameterSet& iPara)
   m_comb_tree->Branch("outer_pdgid",&mt_outer_pdgid,"outer_pdgid/I");
   m_comb_tree->Branch("dca", &mt_dca,"dca/D");
 
+  consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -362,9 +361,7 @@ void MWTrackAnalyzer::endJob()
 //------------------------------------------------------------
 void MWTrackAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  iSetup.get<TrackAssociatorRecord>().get(m_associatorName,theAssociator);
-  m_associator = theAssociator.product();
+
 }
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -391,11 +388,16 @@ void MWTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(m_simSource,simTPhandle);
   const TrackingParticleCollection simTracks = *(simTPhandle.product());
 
+  edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
+  iEvent.getByLabel(m_associatorName,assocHandle);
+  m_associator = assocHandle.product();
+
+
   reco::RecoToSimCollection recSimColl;
   reco::SimToRecoCollection simRecColl;
 
-  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle,&iEvent,&iSetup);
-  simRecColl = m_associator->associateSimToReco(handle,simTPhandle,&iEvent,&iSetup);
+  recSimColl = m_associator->associateRecoToSim(handle,simTPhandle);
+  simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
 
   TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;

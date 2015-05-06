@@ -19,8 +19,6 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 #include <algorithm>
@@ -60,7 +58,6 @@ class MWHistogramMaker : public edm::EDAnalyzer {
   TH1F* m_hpt;
   TH2F* m_hetaphi;
 
-  const TrackAssociatorBase* m_associator;
 };
 
 #endif

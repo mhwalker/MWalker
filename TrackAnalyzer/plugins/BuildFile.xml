@@ -20,7 +20,7 @@
   <use   name="JetMETCorrections/Objects"/>
   <use   name="TrackingTools/TransientTrack"/>
   <use   name="SimDataFormats/Track"/>
-  <use   name="SimDataFormats/Vertex"/>
+  <use   name="SimDataFormats/Associations"/>
   <use   name="SimGeneral/HepPDTRecord"/>
   <use   name="RecoMET/METAlgorithms"/>
   <use   name="TrackingTools/IPTools"/>
@@ -42,13 +42,11 @@
   <use   name="SimDataFormats/EncodedEventId"/>
   <use   name="SimTracker/Records"/>
   <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
-  <use   name="rootcintex"/>
   <use   name="root"/>
   <use   name="SimTracker/TrackAssociation"/>
   <use   name="SimTracker/TrackerHitAssociation"/>
   <use   name="DQMServices/ClientConfig"/>
   <use   name="Validation/RecoTrack"/>
   <use   name="RecoTracker/TrackProducer"/>
-  <use   name="RecoTracker/FinalTrackSelectors"/>
   <use name="roottmva"/>
 </library>
