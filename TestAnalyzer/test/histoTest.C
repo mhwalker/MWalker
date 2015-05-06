@@ -8,4 +8,6 @@ void histoTest()
 
   cout<<hd0->GetName()<<" "<<hd0->m_varname<<" "<<hd0->m_productnames.size()<<endl;
   cout<<hd1->GetName()<<" "<<hd1->m_varname<<" "<<hd1->m_productnames.size()<<endl;
+
+  TClass::GetClass("SignatureTH1F_ObjectVariable<double>")->GetStreamerInfos()->ls();
 }
