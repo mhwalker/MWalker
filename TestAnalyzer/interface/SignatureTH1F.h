@@ -1,6 +1,7 @@
 #ifndef SignatureTH1F_h
 #define SignatureTH1F_h
 #include <TH1F.h>
+#include <TObject.h>
 #include "MWalker/TestAnalyzer/interface/SignatureObject.h"
 
 class SignatureTH1F : public TH1F  {
@@ -11,6 +12,7 @@ class SignatureTH1F : public TH1F  {
   virtual ~SignatureTH1F(){/* no-op*/}
   using TH1F::Fill;
   virtual Int_t Fill(SignatureObject*) = 0;
+  virtual void Copy(TObject&) const = 0;
 
  protected:
 
