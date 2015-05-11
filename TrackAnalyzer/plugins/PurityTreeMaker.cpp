@@ -48,7 +48,6 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   m_outFile = 0;
   m_source = "generalTracks";
   m_associatorName = "TrackAssociatorByHits";
-  p_mvaValues_ = &mvaValues_;
   beamspot_ = iPara.getParameter<edm::InputTag>( "beamspot" );
   if(iPara.exists("outfile"))m_outFile = new TFile(iPara.getParameter<string>("outfile").c_str(),"RECREATE");
   if(iPara.exists("source"))m_source = iPara.getParameter<string>("source");
@@ -57,39 +56,28 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   if(iPara.exists("vertices"))m_vertices = consumes<reco::VertexCollection>(iPara.getParameter<edm::InputTag>("vertices"));
 
   doMVA_ = false;
-  //tmvaReaders_  = NULL;
-  //mvaType_ = "BDTG";
-  vector<string> mvaFileNames;// = "weights.xml";
+  tmvaReader_  = NULL;
+  mvaType_ = "BDTG";
+  string mvaFileName = "weights.xml";
 
   if(iPara.exists("doMVA"))doMVA_ = iPara.getParameter<bool>("doMVA");
-  if(iPara.exists("mvaType"))mvaTypes_  = iPara.getParameter<vector<string> >("mvaType");
-  if(iPara.exists("mvaFileName"))mvaFileNames = iPara.getParameter<vector<string> >("mvaFileName");
+  if(iPara.exists("mvaType"))mvaType_  = iPara.getParameter<string>("mvaType");
+  if(iPara.exists("mvaFileName"))mvaFileName = iPara.getParameter<string>("mvaFileName");
 
   if(doMVA_){
-    for(unsigned int i = 0; i < mvaTypes_.size(); i++){
-
-      TMVA::Reader* tmvaReader_ = new TMVA::Reader("!Color:Silent");
-      tmvaReader_->AddVariable("pt",&m_tvpt);
-      tmvaReader_->AddVariable("lostmidfrac",&m_tvLostMidFrac);
-      tmvaReader_->AddVariable("minlost",&m_tvMinLost);
-      tmvaReader_->AddVariable("nhits",&m_tvNhits);
-      tmvaReader_->AddVariable("relpterr",&m_tvRelPtErr);
-      tmvaReader_->AddVariable("eta",&m_tvEta);
-      tmvaReader_->AddVariable("chi2n_no1Dmod",&m_tvChi2n_no1Dmod);
-      tmvaReader_->AddVariable("chi2n",&m_tvChi2n);
-      tmvaReader_->AddVariable("nlayerslost",&m_tvNlayersLost);
-      tmvaReader_->AddVariable("nlayers3D",&m_tvNlayers3D);
-      tmvaReader_->AddVariable("nlayers",&m_tvNlayers);
-      tmvaReader_->AddVariable("ndof",&m_tvNdof);
-      if(mvaTypes_[i] == "Prompt"){
-	tmvaReader_->AddVariable("absd0PV",&m_tvAbsD0PV);
-	tmvaReader_->AddVariable("absdzPV",&m_tvAbsDzPV);
-	tmvaReader_->AddVariable("absdz",&m_tvAbsDz);
-	tmvaReader_->AddVariable("absd0",&m_tvAbsD0);
-      }
-      tmvaReader_->BookMVA("BDTG",mvaFileNames[i]);
-      tmvaReaders_.push_back(tmvaReader_);
-    }
+    tmvaReader_ = new TMVA::Reader("!Color:Silent");
+    tmvaReader_->AddVariable("lostmidfrac",&m_tvLostMidFrac);
+    tmvaReader_->AddVariable("minlost",&m_tvMinLost);
+    tmvaReader_->AddVariable("nhits",&m_tvNhits);
+    tmvaReader_->AddVariable("relpterr",&m_tvRelPtErr);
+    tmvaReader_->AddVariable("eta",&m_tvEta);
+    tmvaReader_->AddVariable("chi2n_no1Dmod",&m_tvChi2n_no1Dmod);
+    tmvaReader_->AddVariable("chi2n",&m_tvChi2n);
+    tmvaReader_->AddVariable("nlayerslost",&m_tvNlayersLost);
+    tmvaReader_->AddVariable("nlayers3D",&m_tvNlayers3D);
+    tmvaReader_->AddVariable("nlayers",&m_tvNlayers);
+    tmvaReader_->AddVariable("ndof",&m_tvNdof);
+    tmvaReader_->BookMVA(mvaType_,mvaFileName);
   }
 
   m_outTree = new TTree("purityTree","",1);
@@ -113,8 +101,7 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   m_outTree->Branch("absd0",&m_tvAbsD0,"absd0/F");
   m_outTree->Branch("absdzPV",&m_tvAbsDzPV,"absdzPV/F");
   m_outTree->Branch("absd0PV",&m_tvAbsD0PV,"absd0PV/F");
-  m_outTree->Branch("mvavals","std::vector<float>",&p_mvaValues_);
-  //m_outTree->Branch("mvaval",&m_tvMvaVal,"mvaval/F");
+  m_outTree->Branch("mvaval",&m_tvMvaVal,"mvaval/F");
 
   consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
 }
@@ -191,8 +178,6 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
   simRecColl = m_associator->associateSimToReco(handle,simTPhandle);
 
   for(int i = 0; i < (int)handle->size(); i++){
-    p_mvaValues_->clear();
-    p_mvaValues_->reserve(mvaTypes_.size());
     Track tk = (handle->at(i));
     m_tvFake = 1;
     m_tvNdof = tk.ndof();
@@ -262,12 +247,7 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     m_tvMvaVal = -99999;
-    if(doMVA_){
-      // m_tvMvaVal = tmvaReader_->EvaluateMVA(mvaType_);
-      for(unsigned int i = 0; i < tmvaReaders_.size();i++){
-	p_mvaValues_->push_back(tmvaReaders_[i]->EvaluateMVA("BDTG"));
-      }
-    }
+    if(doMVA_) m_tvMvaVal = tmvaReader_->EvaluateMVA(mvaType_);
 
     m_outTree->Fill();
   }

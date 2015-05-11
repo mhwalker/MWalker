@@ -92,10 +92,8 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   float m_tvMvaVal;
 
   bool doMVA_;
-  std::vector<TMVA::Reader*> tmvaReaders_;
-  std::vector<std::string> mvaTypes_;
-  std::vector<float> mvaValues_;
-  std::vector<float>* p_mvaValues_;
+  TMVA::Reader* tmvaReader_;
+  std::string mvaType_;
 
   TTree* m_outTree;
 
