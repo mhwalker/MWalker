@@ -88,7 +88,7 @@ void SimMETFilter::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     int pdgID = iter.pdgId();
     if(m_pdgID.size() > 0 && find(m_pdgID.begin(),m_pdgID.end(),pdgID) == m_pdgID.end())continue;
     if(m_status.size() > 0 && find(m_status.begin(),m_status.end(),status) == m_status.end())continue;
-    outGenParticles->push_back(reco::LeafCandidate(iter));
+    outGenParticles->push_back(iter);
   }
 
   sort(outGenParticles->begin(),outGenParticles->end(),pTComparator_);
