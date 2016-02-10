@@ -309,6 +309,7 @@ void TestAODReader::makeBeamSpot()
 
 void TestAODReader::makeTriggers(const edm::Event& event, const edm::EventSetup& eventsetup)
 {
+/*
   vector<SignatureObject*> triggers;
   for(int i = 0; i < (int)hltConfig_.size(); i++){
     string trigName = hltConfig_.triggerName(i);
@@ -326,6 +327,7 @@ void TestAODReader::makeTriggers(const edm::Event& event, const edm::EventSetup&
   }
 
   m_productmap["ALLTRIGGERS"] = triggers;
+*/
 }
 
 void TestAODReader::makeGenParticles()

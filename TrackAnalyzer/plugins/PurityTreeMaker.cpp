@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
+//#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -55,6 +55,11 @@ MWPurityTreeMaker::MWPurityTreeMaker(const edm::ParameterSet& iPara)
   if(iPara.exists("associator"))m_associatorName = iPara.getParameter<string>("associator");
   if(iPara.exists("simSource"))m_simSource = iPara.getParameter<InputTag>("simSource");
   if(iPara.exists("vertices"))m_vertices = consumes<reco::VertexCollection>(iPara.getParameter<edm::InputTag>("vertices"));
+  m_beamspotToken = consumes<reco::BeamSpot>(beamspot_);
+  m_assocToken = consumes<reco::TrackToTrackingParticleAssociator>(edm::InputTag(m_associatorName));
+  m_trackToken = consumes<edm::View<Track> >(edm::InputTag(m_source));
+  m_trackHighPurityToken = consumes<edm::View<Track > >(edm::InputTag("selectHighPurity"));
+  m_simTPToken = consumes<TrackingParticleCollection>(m_simSource);
 
   doMVA_ = false;
   //tmvaReaders_  = NULL;
@@ -161,12 +166,12 @@ void MWPurityTreeMaker::endRun(const edm::Run& iRun, const edm::EventSetup& iSet
 void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<reco::BeamSpot> hBsp;
-  iEvent.getByLabel(beamspot_, hBsp);
+  iEvent.getByToken(m_beamspotToken, hBsp);
   reco::BeamSpot vertexBeamSpot;
   vertexBeamSpot = *hBsp;
 
   edm::Handle<reco::TrackToTrackingParticleAssociator> assocHandle;
-  iEvent.getByLabel(m_associatorName,assocHandle);
+  iEvent.getByToken(m_assocToken,assocHandle);
   m_associator = assocHandle.product();
 
   iSetup.get<IdealMagneticFieldRecord>().get(m_magfield);
@@ -177,11 +182,11 @@ void MWPurityTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup&
   VertexCollection::const_iterator vtxIter = hVtx->begin();
 
   edm::Handle<View<Track> >handle;
-  iEvent.getByLabel(m_source,handle);
+  iEvent.getByToken(m_trackToken,handle);
   edm::Handle<View<Track> >handleHighPurity;
-  iEvent.getByLabel("selectHighPurity",handleHighPurity);
+  iEvent.getByToken(m_trackHighPurityToken,handleHighPurity);
   edm::Handle<TrackingParticleCollection>  simTPhandle;
-  iEvent.getByLabel(m_simSource,simTPhandle);
+  iEvent.getByToken(m_simTPToken,simTPhandle);
   const TrackingParticleCollection simTracks = *(simTPhandle.product());
 
   reco::RecoToSimCollection recSimColl;

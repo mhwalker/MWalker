@@ -68,6 +68,12 @@ class MWPurityTreeMaker : public edm::EDAnalyzer {
   edm::InputTag m_simSource;
   edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::VertexCollection> m_vertices;
+  edm::EDGetTokenT<reco::BeamSpot> m_beamspotToken;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> m_assocToken;
+  edm::EDGetTokenT<edm::View<reco::Track> > m_trackToken;
+  edm::EDGetTokenT<edm::View<reco::Track> > m_trackHighPurityToken;
+  edm::EDGetTokenT<TrackingParticleCollection> m_simTPToken;
+
 
   float m_tvFake;
   float m_tvIter;

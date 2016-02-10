@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
+//#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
